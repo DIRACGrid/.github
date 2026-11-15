@@ -5,13 +5,23 @@ on:
     - cron: "0 7 * * 1-5"
   workflow_dispatch:
 
+# One scheduled run at a time.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
 jobs:
   notify:
+    name: notify
     runs-on: ubuntu-latest
     steps:
       - name: Fetch open PRs and notify Mattermost
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         env:
+          # zizmor: ignore[secrets-outside-env] notification-only webhook; no GitHub environment needed
           MATTERMOST_WEBHOOK: ${{ secrets.MATTERMOST_WEBHOOK }}
         with:
           script: |
