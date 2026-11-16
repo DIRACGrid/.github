@@ -34,10 +34,13 @@ jobs:
                     isDraft
                     createdAt
                     author { login }
-                    reviews(last: 10) {
-                      nodes { state }
+                    latestOpinionatedReviews(first: 20, writersOnly: true) {
+                      nodes { state submittedAt author { login } }
                     }
-                    reviewRequests(first: 10) {
+                    timelineItems(last: 1, itemTypes: [READY_FOR_REVIEW_EVENT]) {
+                      nodes { ... on ReadyForReviewEvent { createdAt } }
+                    }
+                    reviewRequests(first: 20) {
                       totalCount
                       nodes {
                         requestedReviewer {
@@ -55,12 +58,37 @@ jobs:
             const result = await github.graphql(query);
 
             // Process results
+            // Each reviewer's latest decisive review. A "changes requested"
+            // review stays open until its reviewer is asked again: the author
+            // re-requests a review from them (GitHub lists them in
+            // reviewRequests again until they review or the request is
+            // removed), or marks the PR as ready for review after it.
+            const requestedLogins = pr => new Set(
+              pr.reviewRequests.nodes.map(r => r.requestedReviewer?.login).filter(Boolean)
+            );
+            const reviewState = pr => {
+              const requested = requestedLogins(pr);
+              const readyAt = pr.timelineItems.nodes[0]?.createdAt;
+              let open = 0, reRequested = 0, approved = 0;
+              for (const r of pr.latestOpinionatedReviews.nodes) {
+                if (r.state === "APPROVED") approved++;
+                if (r.state !== "CHANGES_REQUESTED") continue;
+                const askedAgain =
+                  requested.has(r.author?.login) ||
+                  (readyAt && new Date(readyAt) > new Date(r.submittedAt));
+                if (askedAgain) reRequested++; else open++;
+              }
+              return { open, reRequested, approved };
+            };
+
             const sections = [];
             let totalPRs = 0;
 
             for (let i = 0; i < repos.length; i++) {
               const data = result[`repo${i}`];
-              const prs = data.pullRequests.nodes.filter(pr => !pr.isDraft);
+              const prs = data.pullRequests.nodes
+                .map(pr => ({ ...pr, state: reviewState(pr) }))
+                .filter(pr => !pr.isDraft && pr.state.open === 0);
               if (prs.length === 0) continue;
               totalPRs += prs.length;
 
@@ -72,10 +100,9 @@ jobs:
 
                 // Determine review status
                 let status;
-                const reviewStates = pr.reviews.nodes.map(r => r.state);
-                if (reviewStates.includes("CHANGES_REQUESTED")) {
-                  status = ":warning: Changes requested";
-                } else if (reviewStates.includes("APPROVED")) {
+                if (pr.state.reRequested > 0) {
+                  status = ":repeat: Re-review requested";
+                } else if (pr.state.approved > 0) {
                   status = ":white_check_mark: Approved";
                 } else if (pr.reviewRequests.totalCount > 0) {
                   status = ":eyes: Review requested";
@@ -100,7 +127,7 @@ jobs:
             }
 
             if (totalPRs === 0) {
-              core.info("No non-draft PRs found across any repos. Skipping notification.");
+              core.info("No PRs awaiting review across any repos. Skipping notification.");
               return;
             }
 

@@ -13,16 +13,7 @@ If you're looking for something to work on, check out issues labelled ["good fir
 - **Commits**: Use [Conventional Commits](https://www.conventionalcommits.org/) format (`feat:`, `fix:`, `docs:`, etc.)
 - **Branches**: Name your branch descriptively, e.g. `feat/add-widget` or `fix/login-error`
 - **PRs**: Reference the related issue in your PR description (`Closes #123`)
-
-## What to expect from reviews
-
-PRs are reviewed by project maintainers. Here's how the process works:
-
-1. Open your PR and mark it as **Ready for review** when it's complete.
-2. A reviewer will be assigned and will review your changes.
-3. If a reviewer requests changes, the PR is **automatically converted to a draft**. This signals that it's back in your hands.
-4. Address the feedback, push your updates, and mark the PR as **Ready for review** again.
-5. A **daily digest** of open PRs is posted to ensure nothing gets forgotten.
+- **Reviews**: When a reviewer requests changes, re-request a review once the PR is ready again; see [Review process](https://diracx.diracgrid.org/en/latest/dev/how-to/contribute/#when-changes-are-requested)
 
 ## More information
 
