@@ -1,0 +1,36 @@
+name: Validate Renovate preset
+
+on:
+  pull_request:
+    paths:
+      - renovate-config.json
+      - .github/workflows/renovate-config.yml
+  push:
+    branches: [main]
+    paths:
+      - renovate-config.json
+      - .github/workflows/renovate-config.yml
+
+permissions: {}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      # Every DIRACGrid repo extends this file: a broken preset breaks Renovate everywhere at once.
+      # Copied to renovate.json so it is checked as repository config, which is how repos consume it
+      # (given an arbitrary file name, the validator checks it as global config instead).
+      - name: Validate renovate-config.json
+        run: |
+          mkdir "$RUNNER_TEMP/preset"
+          cp renovate-config.json "$RUNNER_TEMP/preset/renovate.json"
+          cd "$RUNNER_TEMP/preset"
+          npx --yes --package renovate@44.243.0 -- renovate-config-validator --strict

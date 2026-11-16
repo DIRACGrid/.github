@@ -1,0 +1,37 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": [
+    "DIRACGrid default Renovate policy.",
+    "Adopt with: {\"extends\": [\"local>DIRACGrid/.github//renovate-config\"]}.",
+    "Repos with maintained release branches also set baseBranchPatterns, e.g. [\"$default\", \"/^rel-/\"]."
+  ],
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests",
+    ":configMigration"
+  ],
+  "labels": ["dependencies"],
+  "minimumReleaseAge": "7 days",
+  "lockFileMaintenance": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "description": "Do not hold back our own Actions, reusable workflows and images: the cooldown is for third-party code, and our refs pinned to a branch (e.g. `@<sha> # main`) have no release timestamp, so the cooldown would block their digest updates forever.",
+      "matchPackageNames": ["DIRACGrid/**", "ghcr.io/diracgrid/**"],
+      "minimumReleaseAge": null
+    },
+    {
+      "description": "Group all GitHub Actions updates together.",
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions",
+      "addLabels": ["github-actions"]
+    },
+    {
+      "description": "Lock file maintenance re-resolves everything to the newest version and skips minimumReleaseAge, so only the package manager can enforce a cooldown. pixi does it with `exclude-newer = \"7d\"` in pixi.toml / [tool.pixi.workspace] (set it in every pixi repo); npm has no rolling equivalent, so its lock files are not refreshed blindly.",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "enabled": false
+    }
+  ]
+}
