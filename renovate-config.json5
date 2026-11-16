@@ -7,7 +7,18 @@
   // exposes no release timestamps, so a minimumReleaseAge blocks those updates
   // entirely (see the diracx-charts config for an example).
   minimumReleaseAge: "7 days",
+  // Keep pixi.lock files fresh: this is what makes dependency cooldowns
+  // enforceable in pixi-based repos (the lock is only touched via reviewed PRs).
+  lockFileMaintenance: {
+    enabled: true,
+  },
   packageRules: [
+    {
+      description: "Group pixi lockfile maintenance into a single PR",
+      matchUpdateTypes: ["lockFileMaintenance"],
+      matchManagers: ["pixi"],
+      groupName: "pixi lockfile maintenance",
+    },
     {
       description: "Group all GitHub Actions updates together",
       matchManagers: ["github-actions"],
