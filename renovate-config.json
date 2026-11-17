@@ -35,6 +35,19 @@
       "addLabels": ["github-actions"]
     },
     {
+      "description": "Third-party Actions pinned to a branch (e.g. `pypa/gh-action-pypi-publish@<sha> # release/v1`) have no release timestamp, so with the default `minimumReleaseAgeBehaviour` (timestamp-required) their digest updates would be held forever. Let them through; versioned refs (`# v4.2.0`) keep the cooldown.",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["digest"],
+      "matchCurrentValue": "!/^v?\\d/",
+      "minimumReleaseAgeBehaviour": "timestamp-optional"
+    },
+    {
+      "description": "Group all pre-commit hook updates together, instead of one PR per hook.",
+      "matchManagers": ["pre-commit"],
+      "groupName": "pre-commit hooks",
+      "addLabels": ["pre-commit"]
+    },
+    {
       "description": "Lock file maintenance re-resolves everything to the newest version and skips minimumReleaseAge, so only the package manager can enforce a cooldown. pixi does it with `exclude-newer = \"7d\"` in pixi.toml / [tool.pixi.workspace] (set it in every pixi repo); npm has no rolling equivalent, so its lock files are not refreshed blindly.",
       "matchManagers": ["npm"],
       "matchUpdateTypes": ["lockFileMaintenance"],
