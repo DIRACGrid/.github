@@ -12,6 +12,13 @@
   ],
   "labels": ["dependencies"],
   "minimumReleaseAge": "7 days",
+  "pre-commit": {
+    "description": [
+      "Off by default in Renovate; without this, the hook revs pinned in .pre-commit-config.yaml never get update PRs.",
+      "Repos where the pre-commit.ci app already does the autoupdates (e.g. diracx) disable this per-repo to avoid duplicate PRs."
+    ],
+    "enabled": true
+  },
   "lockFileMaintenance": {
     "enabled": true
   },
