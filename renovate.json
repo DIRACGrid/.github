@@ -1,0 +1,7 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Adopts the shared DIRACGrid Renovate policy (this repository hosts it).",
+  "extends": [
+    "local>DIRACGrid/.github//renovate-config"
+  ]
+}
