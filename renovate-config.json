@@ -14,8 +14,7 @@
   "minimumReleaseAge": "7 days",
   "pre-commit": {
     "description": [
-      "Off by default in Renovate; without this, the hook revs pinned in .pre-commit-config.yaml never get update PRs.",
-      "Repos where the pre-commit.ci app already does the autoupdates (e.g. diracx) disable this per-repo to avoid duplicate PRs."
+      "Off by default in Renovate; without this, the hook revs pinned in .pre-commit-config.yaml never get update PRs."
     ],
     "enabled": true
   },
@@ -26,6 +25,12 @@
     {
       "description": "Do not hold back our own Actions, reusable workflows and images: the cooldown is for third-party code, and our refs pinned to a branch (e.g. `@<sha> # main`) have no release timestamp, so the cooldown would block their digest updates forever.",
       "matchPackageNames": ["DIRACGrid/**", "ghcr.io/diracgrid/**"],
+      "minimumReleaseAge": null
+    },
+    {
+      "description": "Same for our own packages on PyPI and npm: their names do not carry the DIRACGrid/ prefix, so the rule above misses them and a new signurlarity/diracx/DIRAC release would wait 7 days before the downstream update PR.",
+      "matchDatasources": ["pypi", "npm"],
+      "matchPackageNames": ["signurlarity", "intercede", "diraccfg", "db12", "diracx", "diracx-*", "DIRAC", "DIRACCommon", "WebAppDIRAC", "@dirac-grid/**"],
       "minimumReleaseAge": null
     },
     {
