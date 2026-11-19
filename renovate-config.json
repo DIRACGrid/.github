@@ -66,25 +66,6 @@
       "description": "Do not bump the CI interpreter (setup-python's python-version): it is pinned on purpose, e.g. 3.11 for old pre-commit hooks that break on Python 3.14.",
       "matchPackageNames": ["actions/python-versions"],
       "enabled": false
-    },
-    {
-      "description": "We use the DIRACGrid forks of tornado and tornado_m2crypto: never bump them from PyPI.",
-      "matchDatasources": ["pypi"],
-      "matchPackageNames": ["tornado", "tornado-m2crypto"],
-      "enabled": false
-    },
-    {
-      "description": "Major pre-commit hook updates can reformat code (e.g. black): require approval on the dependency dashboard.",
-      "matchManagers": ["pre-commit"],
-      "matchUpdateTypes": ["major"],
-      "dependencyDashboardApproval": true
-    },
-    {
-      "description": "Same for 0.x minors, where ruff and flynt make such changes.",
-      "matchManagers": ["pre-commit"],
-      "matchUpdateTypes": ["minor"],
-      "matchCurrentVersion": "/^v?0\\./",
-      "dependencyDashboardApproval": true
     }
   ]
 }
