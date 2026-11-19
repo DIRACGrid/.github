@@ -18,6 +18,13 @@
     ],
     "enabled": true
   },
+  "poetry": {
+    "description": [
+      "No DIRACGrid repo uses Poetry, but Renovate's poetry manager also claims PEP 621 pyproject.toml files ([project] tables) and then pep621 skips them (seen on diracx, intercede and signurlarity with renovate --dry-run=extract).",
+      "Disabling it gives those files back to the pep621 manager."
+    ],
+    "enabled": false
+  },
   "lockFileMaintenance": {
     "enabled": true
   },
