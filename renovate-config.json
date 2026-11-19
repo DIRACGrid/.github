@@ -19,10 +19,7 @@
     "enabled": true
   },
   "poetry": {
-    "description": [
-      "No DIRACGrid repo uses Poetry, but Renovate's poetry manager also claims PEP 621 pyproject.toml files ([project] tables) and then pep621 skips them (seen on diracx, intercede and signurlarity with renovate --dry-run=extract).",
-      "Disabling it gives those files back to the pep621 manager."
-    ],
+    "description": "We don't use Poetry, and its manager takes PEP 621 pyproject.toml files away from pep621.",
     "enabled": false
   },
   "lockFileMaintenance": {
@@ -35,7 +32,7 @@
       "minimumReleaseAge": null
     },
     {
-      "description": "Same for our own packages on PyPI and npm: their names do not carry the DIRACGrid/ prefix, so the rule above misses them and a new signurlarity/diracx/DIRAC release would wait 7 days before the downstream update PR.",
+      "description": "Same for our own PyPI and npm packages, whose names lack the DIRACGrid/ prefix.",
       "matchDatasources": ["pypi", "npm"],
       "matchPackageNames": ["signurlarity", "intercede", "diraccfg", "db12", "diracx", "diracx-*", "DIRAC", "DIRACCommon", "WebAppDIRAC", "@dirac-grid/**"],
       "minimumReleaseAge": null
