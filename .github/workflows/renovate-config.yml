@@ -4,11 +4,13 @@ on:
   pull_request:
     paths:
       - renovate-config.json
+      - renovate.json
       - .github/workflows/renovate-config.yml
   push:
     branches: [main]
     paths:
       - renovate-config.json
+      - renovate.json
       - .github/workflows/renovate-config.yml
 
 permissions: {}
@@ -34,3 +36,5 @@ jobs:
           cp renovate-config.json "$RUNNER_TEMP/preset/renovate.json"
           cd "$RUNNER_TEMP/preset"
           npx --yes --package renovate@44.243.0 -- renovate-config-validator --strict
+      - name: Validate renovate.json
+        run: npx --yes --package renovate@44.243.0 -- renovate-config-validator --strict
