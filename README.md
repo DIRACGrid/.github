@@ -6,9 +6,9 @@ Organization-level GitHub configuration for [DIRACGrid](https://github.com/DIRAC
 
 | Path | Purpose |
 |---|---|
-| `renovate-config.json` | The shared [Renovate](https://docs.renovatebot.com/) preset consumed by **every** repository in the organization: digest-pinned GitHub Actions, grouped Actions updates, a 7-day release-age cooldown, lock file maintenance, and guardrails (no CI interpreter bumps, no tornado bumps, dashboard approval for pre-commit hook majors) |
+| `renovate-config.json` | The shared [Renovate](https://docs.renovatebot.com/) preset extended by the DIRACGrid repositories: digest-pinned GitHub Actions, grouped updates, a 7-day release-age cooldown, lock file maintenance, and guardrails (no CI interpreter or tornado bumps, dashboard approval for pre-commit hook updates that can reformat code) |
 | `profile/` | The organization profile shown on https://github.com/DIRACGrid |
-| `.github/workflows/` | Organization-level workflows: PR review reminders, draft-PR conversion, Renovate preset validation |
+| `.github/workflows/` | Workflows of this repository: pre-commit, Renovate config validation, and PR review reminders for the diracx repositories |
 | `CONTRIBUTING.md`, `SECURITY.md` | Default community health files inherited by repositories without their own |
 
 ## Adopting the Renovate preset
@@ -24,7 +24,7 @@ Add a `renovate.json` to your repository:
 
 Repositories with maintained release branches also set `baseBranchPatterns`, e.g. `["$default", "/^rel-/"]`.
 
-The preset is validated in CI on every change to `renovate-config.json`: a broken preset would break Renovate for the whole organization at once.
+CI validates the preset on every change: a broken preset would break Renovate for the whole organization at once.
 
 ## More information
 

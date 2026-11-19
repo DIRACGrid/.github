@@ -3,5 +3,14 @@
   "description": "Adopts the shared DIRACGrid Renovate policy (this repository hosts it).",
   "extends": [
     "local>DIRACGrid/.github//renovate-config"
+  ],
+  "customManagers": [
+    {
+      "description": "Keep the validator in renovate-config.yml on a current Renovate version.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/renovate-config\\.yml$/"],
+      "matchStrings": ["--package (?<depName>renovate)@(?<currentValue>[\\d.]+)"],
+      "datasourceTemplate": "npm"
+    }
   ]
 }
