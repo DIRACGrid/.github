@@ -10,7 +10,9 @@
     "helpers:pinGitHubActionDigests",
     ":configMigration"
   ],
-  "labels": ["dependencies"],
+  "labels": [
+    "dependencies"
+  ],
   "minimumReleaseAge": "7 days",
   "pre-commit": {
     "description": [
@@ -28,39 +30,100 @@
   "packageRules": [
     {
       "description": "Do not hold back our own Actions, reusable workflows and images: the cooldown is for third-party code, and our refs pinned to a branch (e.g. `@<sha> # main`) have no release timestamp, so the cooldown would block their digest updates forever.",
-      "matchPackageNames": ["DIRACGrid/**", "ghcr.io/diracgrid/**"],
+      "matchPackageNames": [
+        "DIRACGrid/**",
+        "ghcr.io/diracgrid/**"
+      ],
       "minimumReleaseAge": null
     },
     {
       "description": "Same for our own PyPI and npm packages, whose names lack the DIRACGrid/ prefix.",
-      "matchDatasources": ["pypi", "npm"],
-      "matchPackageNames": ["signurlarity", "intercede", "diraccfg", "db12", "diracx", "diracx-*", "DIRAC", "DIRACCommon", "WebAppDIRAC", "@dirac-grid/**"],
+      "matchDatasources": [
+        "pypi",
+        "npm"
+      ],
+      "matchPackageNames": [
+        "signurlarity",
+        "intercede",
+        "diraccfg",
+        "db12",
+        "diracx",
+        "diracx-*",
+        "DIRAC",
+        "DIRACCommon",
+        "WebAppDIRAC",
+        "@dirac-grid/**"
+      ],
       "minimumReleaseAge": null
     },
     {
       "description": "Group all GitHub Actions updates together.",
-      "matchManagers": ["github-actions"],
+      "matchManagers": [
+        "github-actions"
+      ],
       "groupName": "GitHub Actions",
-      "addLabels": ["github-actions"]
+      "addLabels": [
+        "github-actions"
+      ]
     },
     {
       "description": "Third-party Actions pinned to a branch (e.g. `pypa/gh-action-pypi-publish@<sha> # release/v1`) have no release timestamp, so with the default `minimumReleaseAgeBehaviour` (timestamp-required) their digest updates would be held forever. Let them through; versioned refs (`# v4.2.0`) keep the cooldown.",
-      "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["digest"],
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchUpdateTypes": [
+        "digest"
+      ],
       "matchCurrentValue": "!/^v?\\d/",
       "minimumReleaseAgeBehaviour": "timestamp-optional"
     },
     {
       "description": "Group all pre-commit hook updates together, instead of one PR per hook.",
-      "matchManagers": ["pre-commit"],
+      "matchManagers": [
+        "pre-commit"
+      ],
       "groupName": "pre-commit hooks",
-      "addLabels": ["pre-commit"]
+      "addLabels": [
+        "pre-commit"
+      ]
     },
     {
       "description": "Lock file maintenance re-resolves everything to the newest version and skips minimumReleaseAge, so only the package manager can enforce a cooldown. pixi does it with `exclude-newer = \"7d\"` in pixi.toml / [tool.pixi.workspace] (set it in every pixi repo); npm has no rolling equivalent, so its lock files are not refreshed blindly.",
-      "matchManagers": ["npm"],
-      "matchUpdateTypes": ["lockFileMaintenance"],
+      "matchManagers": [
+        "npm"
+      ],
+      "matchUpdateTypes": [
+        "lockFileMaintenance"
+      ],
       "enabled": false
+    },
+    {
+      "description": "Never bump the CI interpreter version (python-version in GitHub Actions workflows): it is a deliberate choice, e.g. pinned to 3.11 while the pre-commit hooks predate the removal of ast.Str in Python 3.12. The environments tested per python version are defined by pixi, not here.",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchDepNames": [
+        "python"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "We use the DIRACGrid/tornado (iostreamConfigurable) and DIRACGrid/tornado_m2crypto forks instead of upstream tornado; never bump tornado from PyPI.",
+      "matchDepNames": [
+        "tornado",
+        "tornado-m2crypto"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Major pre-commit hook updates change code formatting (e.g. black): keep them visible on the dependency dashboard, but require explicit approval before a PR is opened.",
+      "matchManagers": [
+        "pre-commit"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "dependencyDashboardApproval": true
     }
   ]
 }
