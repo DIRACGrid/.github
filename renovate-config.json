@@ -3,7 +3,8 @@
   "description": [
     "DIRACGrid default Renovate policy.",
     "Adopt with: {\"extends\": [\"local>DIRACGrid/.github//renovate-config\"]}.",
-    "Repos with maintained release branches also set baseBranchPatterns, e.g. [\"$default\", \"/^rel-/\"]."
+    "Repos with maintained release branches also set baseBranchPatterns, e.g. [\"$default\", \"/^rel-/\"].",
+    "Non-major updates are automerged once the required checks pass; major updates keep a PR for review."
   ],
   "extends": [
     "config:recommended",
@@ -26,6 +27,15 @@
     "enabled": true
   },
   "packageRules": [
+    {
+      "description": [
+        "Automerge non-major updates (minor, patch, pin, digest and lockFileMaintenance) once the required checks pass.",
+        "Renovate uses GitHub-native auto-merge (platformAutomerge defaults to true), so each repo's branch protection needs 'Allow auto-merge' enabled; where required reviews would block the merge, the renovate-approve app supplies the approval.",
+        "Repos can opt out per-dependency with: {\"packageRules\": [{\"matchPackageNames\": [\"*\"], \"automerge\": false}]}."
+      ],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "lockFileMaintenance"],
+      "automerge": true
+    },
     {
       "description": "Do not hold back our own Actions, reusable workflows and images: the cooldown is for third-party code, and our refs pinned to a branch (e.g. `@<sha> # main`) have no release timestamp, so the cooldown would block their digest updates forever.",
       "matchPackageNames": ["DIRACGrid/**", "ghcr.io/diracgrid/**"],
