@@ -6,6 +6,8 @@
 #   branches_all       true: the `branches` rules apply to every branch, not only the protected ones
 #   required_checks    status checks required on the protected branches
 #   merge_methods      allowed merge methods (default: merge, squash, rebase)
+#   release_deploy_key true: the release workflow pushes commits and tags with a deploy key
+#                      (scripts/setup_release_key.py), so deploy keys bypass `branches` and `tags`
 #
 # Bypass actors are in the templates: Renovate (Integration 2740) on `fork-only`,
 # team dirac-release-manager (Team 52350) on `tags`.
@@ -30,6 +32,7 @@ protected = ["integration", "rel-v*r*"]
 fork_only_exclude = ["renovate/*"]
 # Keeps renovate/* under the `branches` rules as long as the exclusion above exists.
 branches_all = true
+release_deploy_key = true
 
 [repos.diraccfg]
 
@@ -78,3 +81,4 @@ merge_methods = ["squash"]
 
 [repos.WebAppDIRAC]
 protected = ["integration", "rel-v*r*"]
+release_deploy_key = true
