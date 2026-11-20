@@ -1,0 +1,80 @@
+# Per-repository parameters for the ruleset templates in this directory.
+#
+#   protected          branches that take pull requests (default: the default branch)
+#   tags               true: release managers may create tags; false: nobody may
+#   fork_only_exclude  extra branches people with write access may create and push
+#   branches_all       true: the `branches` rules apply to every branch, not only the protected ones
+#   required_checks    status checks required on the protected branches
+#   merge_methods      allowed merge methods (default: merge, squash, rebase)
+#
+# Bypass actors are in the templates: Renovate (Integration 2740) on `fork-only`,
+# team dirac-release-manager (Team 52350) on `tags`.
+
+org = "DIRACGrid"
+
+[repos.".github"]
+tags = false
+
+[repos.container-images]
+tags = false
+required_checks = [
+  { context = "build (secret-generation)", integration_id = 15368 },
+  { context = "build_chain", integration_id = 15368 },
+]
+
+[repos.DB12]
+
+[repos.DIRAC]
+protected = ["integration", "rel-v*r*"]
+# To be replaced: Renovate already bypasses `fork-only`, so this only opens renovate/* to everyone with write access.
+fork_only_exclude = ["renovate/*"]
+# Keeps renovate/* under the `branches` rules as long as the exclusion above exists.
+branches_all = true
+
+[repos.diraccfg]
+
+[repos."diracgrid.org"]
+tags = false
+
+[repos.DIRACOS2]
+
+[repos.dirac-webapp-packaging]
+
+[repos.DIRACWebAppResources]
+
+[repos.diracx]
+# To be replaced by a bypass actor: anyone with write access can create a branch with this prefix.
+fork_only_exclude = ["release-please--**"]
+
+[repos.diracx-charts]
+
+[repos.diracx-web]
+# To be replaced by a bypass actor, as in diracx.
+fork_only_exclude = ["release-please--**"]
+
+[repos.intercede]
+# To be replaced by a bypass actor, as in diracx.
+fork_only_exclude = ["release-please--**"]
+merge_methods = ["squash"]
+
+[repos.management]
+tags = false
+
+[repos.mkdocs-diracx-plugin]
+tags = false
+
+[repos.Pilot]
+protected = ["master", "devel"]
+tags = false
+
+[repos.signurlarity]
+# To be replaced by a bypass actor, as in diracx.
+fork_only_exclude = ["release-please--**"]
+merge_methods = ["squash"]
+
+[repos.tornado]
+
+[repos.tornado_m2crypto]
+
+[repos.WebAppDIRAC]
+protected = ["integration", "rel-v*r*"]
