@@ -4,7 +4,7 @@
     "DIRACGrid default Renovate policy.",
     "Adopt with: {\"extends\": [\"local>DIRACGrid/.github//renovate-config\"]}.",
     "Repos with maintained release branches also set baseBranchPatterns, e.g. [\"$default\", \"/^rel-/\"].",
-    "Non-major updates are automerged once the required checks pass; major updates keep a PR for review."
+    "Non-major updates are automerged once all checks pass; majors, 0.x and GitHub Actions keep a PR for review."
   ],
   "extends": [
     "config:recommended",
@@ -13,6 +13,7 @@
   ],
   "labels": ["dependencies"],
   "minimumReleaseAge": "7 days",
+  "platformAutomerge": false,
   "pre-commit": {
     "description": [
       "Off by default in Renovate; without this, the hook revs pinned in .pre-commit-config.yaml never get update PRs."
@@ -28,12 +29,14 @@
   },
   "packageRules": [
     {
-      "description": [
-        "Automerge non-major updates (minor, patch, pin, digest and lockFileMaintenance) once the required checks pass.",
-        "Renovate uses GitHub-native auto-merge (platformAutomerge defaults to true), so each repo's branch protection needs 'Allow auto-merge' enabled; where required reviews would block the merge, the renovate-approve app supplies the approval.",
-        "Repos can opt out per-dependency with: {\"packageRules\": [{\"matchPackageNames\": [\"*\"], \"automerge\": false}]}."
-      ],
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "lockFileMaintenance"],
+      "description": "Automerge minor and patch updates, except 0.x versions, where any release may be breaking.",
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": true
+    },
+    {
+      "description": "Automerge pin, digest and lock file updates.",
+      "matchUpdateTypes": ["pin", "digest", "lockFileMaintenance"],
       "automerge": true
     },
     {
@@ -76,6 +79,11 @@
       "description": "Do not bump the CI interpreter (setup-python's python-version): it is pinned on purpose, e.g. 3.11 for old pre-commit hooks that break on Python 3.14.",
       "matchPackageNames": ["actions/python-versions"],
       "enabled": false
+    },
+    {
+      "description": "Workflow changes are always reviewed: some action digests skip the cooldown.",
+      "matchManagers": ["github-actions"],
+      "automerge": false
     }
   ]
 }
