@@ -41,7 +41,6 @@ What differs per repository (protected branches, whether it has releases, requir
 scripts/rulesets.py                              # show what differs on GitHub, for every repository
 scripts/rulesets.py diff --repo diracx
 scripts/rulesets.py apply --repo diracx --yes    # create or update the three rulesets
-scripts/setup_release_key.py DIRACGrid/DIRAC integration 'rel-v*r*'   # deploy key for a release workflow
 ```
 
 `diff` only reads and exits with 1 when something differs. `apply` needs admin rights on the repository; add `--prune` to also delete rulesets that are not in the template. Both need the `gh` CLI. The `fork-only` ruleset can only be applied where the Renovate app is installed.

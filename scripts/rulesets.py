@@ -69,11 +69,6 @@ def render(params: dict, default_branch: str) -> dict[str, dict]:
     fork_only["conditions"]["ref_name"]["exclude"] = protected + extra
 
     tags = template("tags" if params.get("tags", True) else "no-tags")
-    if params.get("release_deploy_key"):
-        for ruleset in (branches, tags):
-            ruleset.setdefault("bypass_actors", []).append(
-                {"actor_id": None, "actor_type": "DeployKey", "bypass_mode": "always"}
-            )
     return {r["name"]: r for r in (branches, fork_only, tags)}
 
 
