@@ -40,6 +40,7 @@ release_deploy_key = true
 tags = false
 
 [repos.DIRACOS2]
+release_deploy_key = true
 
 [repos.dirac-webapp-packaging]
 
