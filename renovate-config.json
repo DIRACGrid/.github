@@ -3,7 +3,8 @@
   "description": [
     "DIRACGrid default Renovate policy.",
     "Adopt with: {\"extends\": [\"local>DIRACGrid/.github//renovate-config\"]}.",
-    "Repos with maintained release branches also set baseBranchPatterns, e.g. [\"$default\", \"/^rel-/\"]."
+    "Repos with maintained release branches also set baseBranchPatterns, e.g. [\"$default\", \"/^rel-/\"].",
+    "Non-major updates are automerged once all checks pass; majors, 0.x and GitHub Actions keep a PR for review."
   ],
   "extends": [
     "config:recommended",
@@ -12,6 +13,7 @@
   ],
   "labels": ["dependencies"],
   "minimumReleaseAge": "7 days",
+  "platformAutomerge": false,
   "pre-commit": {
     "description": [
       "Off by default in Renovate; without this, the hook revs pinned in .pre-commit-config.yaml never get update PRs."
@@ -26,6 +28,17 @@
     "enabled": true
   },
   "packageRules": [
+    {
+      "description": "Automerge minor and patch updates, except 0.x versions, where any release may be breaking.",
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": true
+    },
+    {
+      "description": "Automerge pin, digest and lock file updates.",
+      "matchUpdateTypes": ["pin", "digest", "lockFileMaintenance"],
+      "automerge": true
+    },
     {
       "description": "Do not hold back our own Actions, reusable workflows and images: the cooldown is for third-party code, and our refs pinned to a branch (e.g. `@<sha> # main`) have no release timestamp, so the cooldown would block their digest updates forever.",
       "matchPackageNames": ["DIRACGrid/**", "ghcr.io/diracgrid/**"],
@@ -66,6 +79,11 @@
       "description": "Do not bump the CI interpreter (setup-python's python-version): it is pinned on purpose, e.g. 3.11 for old pre-commit hooks that break on Python 3.14.",
       "matchPackageNames": ["actions/python-versions"],
       "enabled": false
+    },
+    {
+      "description": "Workflow changes are always reviewed: some action digests skip the cooldown.",
+      "matchManagers": ["github-actions"],
+      "automerge": false
     }
   ]
 }
