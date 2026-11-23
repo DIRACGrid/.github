@@ -51,9 +51,13 @@
       "minimumReleaseAgeBehaviour": "timestamp-optional"
     },
     {
-      "description": "Group all pre-commit hook updates together, instead of one PR per hook.",
+      "description": [
+        "Group all pre-commit hook updates together, instead of one PR per hook.",
+        "The explicit commitMessagePrefix makes the commit message deterministically conventional: Renovate's semantic prefixing is not reliably applied to grouped updates, which breaks repos that gate commits on a conventional-message check (e.g. DIRAC's semantic.yml)."
+      ],
       "matchManagers": ["pre-commit"],
       "groupName": "pre-commit hooks",
+      "commitMessagePrefix": "chore(deps):",
       "addLabels": ["pre-commit"]
     },
     {
