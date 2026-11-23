@@ -80,6 +80,12 @@
       "description": "Do not bump the CI interpreter (setup-python's python-version): it is pinned on purpose, e.g. 3.11 for old pre-commit hooks that break on Python 3.14.",
       "matchPackageNames": ["actions/python-versions"],
       "enabled": false
+    },
+    {
+      "description": "Upper bounds in pyproject.toml are workarounds for known incompatibilities, so never raise them automatically. The updates are listed in the Dependency Dashboard, where a PR can be requested once the underlying problem is fixed.",
+      "matchManagers": ["pep621"],
+      "matchCurrentValue": "/</",
+      "dependencyDashboardApproval": true
     }
   ]
 }
