@@ -41,10 +41,6 @@ required_checks = ["pre-commit", "shellcheck", "pycodestyle"]
 # CODEOWNERS names two people for `*`: requiring them would block every other reviewer.
 code_owners = false
 protected = ["integration", "rel-v*r*"]
-# To be replaced: Renovate already bypasses `fork-only`, so this only opens renovate/* to everyone with write access.
-fork_only_exclude = ["renovate/*"]
-# Keeps renovate/* under the `branches` rules as long as the exclusion above exists.
-branches_all = true
 
 [repos.diraccfg]
 required_checks = ["pre-commit"]
@@ -61,7 +57,8 @@ tags = false
 [repos.diracx]
 # release-please pushes this branch with the workflow token, which cannot be a bypass actor.
 # No required_checks: its pull request is opened by that token and gets no CI run.
-fork_only_exclude = ["release-please--**"]
+# update_security_txt_expiry.yml pushes its branch with the same token.
+fork_only_exclude = ["release-please--**", "chore/update-security-txt-expiry"]
 
 [repos.diracx-charts]
 required_checks = ["pre-commit"]
@@ -76,6 +73,7 @@ fork_only_exclude = ["release-please--**"]
 merge_methods = ["squash"]
 
 [repos.management]
+# Apply with --prune: `branches` replaces the older `main` ruleset (same rules).
 required_checks = ["certificates-generation"]
 tags = false
 
@@ -84,6 +82,8 @@ required_checks = ["pre-commit"]
 tags = false
 
 [repos.Pilot]
+# Apply with --prune: the templates replace the older `master`, `devel`, `oldMaster` and
+# `no more tags` rulesets. oldMaster stays frozen through `fork-only`.
 protected = ["master", "devel"]
 tags = false
 
@@ -95,6 +95,7 @@ merge_methods = ["squash"]
 [repos.tornado]
 
 [repos.tornado_m2crypto]
+# Apply with --prune: removes the older `main` ruleset, which is disabled.
 
 [repos.WebAppDIRAC]
 required_checks = ["pre-commit", "pyLint"]
