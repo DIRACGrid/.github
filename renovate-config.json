@@ -25,6 +25,16 @@
   "lockFileMaintenance": {
     "enabled": true
   },
+  "customManagers": [
+    {
+      "description": "Update the pre-commit version pinned in workflows (`pip install pre-commit==x.y.z`).",
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.ya?ml$/"],
+      "matchStrings": ["pip install pre-commit==(?<currentValue>[\\d.]+)"],
+      "depNameTemplate": "pre-commit",
+      "datasourceTemplate": "pypi"
+    }
+  ],
   "packageRules": [
     {
       "description": "Do not hold back our own Actions, reusable workflows and images: the cooldown is for third-party code, and our refs pinned to a branch (e.g. `@<sha> # main`) have no release timestamp, so the cooldown would block their digest updates forever.",
@@ -51,9 +61,13 @@
       "minimumReleaseAgeBehaviour": "timestamp-optional"
     },
     {
-      "description": "Group all pre-commit hook updates together, instead of one PR per hook.",
+      "description": [
+        "Group all pre-commit hook updates together, instead of one PR per hook.",
+        "The explicit commitMessagePrefix makes the commit message deterministically conventional: Renovate's semantic prefixing is not reliably applied to grouped updates, which breaks repos that gate commits on a conventional-message check (e.g. DIRAC's semantic.yml)."
+      ],
       "matchManagers": ["pre-commit"],
       "groupName": "pre-commit hooks",
+      "commitMessagePrefix": "chore(deps):",
       "addLabels": ["pre-commit"]
     },
     {
