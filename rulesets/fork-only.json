@@ -10,6 +10,6 @@
     {"type": "non_fast_forward"}
   ],
   "bypass_actors": [
-    {"actor_id": 2740, "actor_type": "Integration", "bypass_mode": "always"}
+    "renovate"
   ]
 }

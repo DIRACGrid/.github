@@ -41,8 +41,12 @@ def template(name: str) -> dict:
     return json.loads((RULESETS_DIR / f"{name}.json").read_text())
 
 
-def render(params: dict, default_branch: str) -> dict[str, dict]:
-    """Return the rulesets one repository should have, keyed by ruleset name."""
+def render(params: dict, default_branch: str, actors: dict) -> dict[str, dict]:
+    """Return the rulesets one repository should have, keyed by ruleset name.
+
+    ``actors`` is the ``[actors]`` table of repos.toml: the templates name their
+    bypass actors, GitHub wants the numeric ids.
+    """
     protected = [f"refs/heads/{b}" for b in params.get("protected", [default_branch])]
     extra = [f"refs/heads/{b}" for b in params.get("fork_only_exclude", [])]
 
@@ -50,26 +54,36 @@ def render(params: dict, default_branch: str) -> dict[str, dict]:
     branches["conditions"]["ref_name"]["include"] = (
         ["~ALL"] if params.get("branches_all") else protected
     )
+    pull_request = next(r for r in branches["rules"] if r["type"] == "pull_request")
+    pull_request["parameters"]["require_code_owner_review"] = params.get(
+        "code_owners", True
+    )
     if methods := params.get("merge_methods"):
-        pull_request = next(r for r in branches["rules"] if r["type"] == "pull_request")
         pull_request["parameters"]["allowed_merge_methods"] = methods
-    if checks := params.get("required_checks"):
-        branches["rules"].append(
-            {
-                "type": "required_status_checks",
-                "parameters": {
-                    "strict_required_status_checks_policy": True,
-                    "do_not_enforce_on_create": False,
-                    "required_status_checks": checks,
-                },
-            }
-        )
 
     fork_only = template("fork-only")
     fork_only["conditions"]["ref_name"]["exclude"] = protected + extra
 
     tags = template("tags" if params.get("tags", True) else "no-tags")
-    return {r["name"]: r for r in (branches, fork_only, tags)}
+    rulesets = [branches, fork_only, tags]
+
+    # A ruleset of its own, always on the protected branches only: with
+    # `branches_all` the checks would otherwise also gate pushes to renovate/*.
+    if checks := params.get("required_checks"):
+        required = template("required-checks")
+        required["conditions"]["ref_name"]["include"] = protected
+        required["rules"][0]["parameters"]["required_status_checks"] = [
+            {"context": c, "integration_id": actors["github-actions"]["actor_id"]}
+            for c in checks
+        ]
+        rulesets.append(required)
+
+    for ruleset in rulesets:
+        ruleset["bypass_actors"] = [
+            {**actors[name], "bypass_mode": "always"}
+            for name in ruleset["bypass_actors"]
+        ]
+    return {r["name"]: r for r in rulesets}
 
 
 def normalize(ruleset: dict, default_branch: str) -> dict:
@@ -131,9 +145,9 @@ def live_rulesets(org: str, repo: str) -> dict[str, dict]:
     return {r["name"]: gh(f"repos/{org}/{repo}/rulesets/{r['id']}") for r in listed}
 
 
-def diff_repo(org: str, repo: str, params: dict) -> list[str]:
+def diff_repo(org: str, repo: str, params: dict, actors: dict) -> list[str]:
     default_branch = gh(f"repos/{org}/{repo}")["default_branch"]
-    wanted = render(params, default_branch)
+    wanted = render(params, default_branch, actors)
     live = live_rulesets(org, repo)
     lines = []
     for name, ruleset in wanted.items():
@@ -154,10 +168,10 @@ def diff_repo(org: str, repo: str, params: dict) -> list[str]:
     return lines
 
 
-def apply_repo(org: str, repo: str, params: dict, prune: bool) -> None:
+def apply_repo(org: str, repo: str, params: dict, actors: dict, prune: bool) -> None:
     default_branch = gh(f"repos/{org}/{repo}")["default_branch"]
     live = live_rulesets(org, repo)
-    wanted = render(params, default_branch)
+    wanted = render(params, default_branch, actors)
     for name, ruleset in wanted.items():
         if name in live:
             gh(
@@ -193,19 +207,19 @@ def main() -> int:
     args = parser.parse_args()
 
     config = tomllib.loads((RULESETS_DIR / "repos.toml").read_text())
-    org, repos = config["org"], config["repos"]
+    org, repos, actors = config["org"], config["repos"], config["actors"]
     if args.repo and args.repo not in repos:
         parser.error(f"{args.repo} is not in rulesets/repos.toml")
 
     if args.command == "apply":
         if not (args.repo and args.yes):
             parser.error("apply needs --repo and --yes")
-        apply_repo(org, args.repo, repos[args.repo], args.prune)
+        apply_repo(org, args.repo, repos[args.repo], actors, args.prune)
         return 0
 
     drift = False
     for repo in [args.repo] if args.repo else sorted(repos, key=str.lower):
-        lines = diff_repo(org, repo, repos[repo])
+        lines = diff_repo(org, repo, repos[repo], actors)
         drift |= bool(lines)
         print(f"{repo}: ok" if not lines else f"{repo}:")
         for line in lines:

@@ -1,30 +1,45 @@
 # Per-repository parameters for the ruleset templates in this directory.
 #
-#   protected          branches that take pull requests (default: the default branch)
+#   protected          branches that take pull requests (default: the default branch,
+#                      so every repository has at least one protected branch)
 #   tags               true: release managers may create tags; false: nobody may
 #   fork_only_exclude  extra branches people with write access may create and push
 #   branches_all       true: the `branches` rules apply to every branch, not only the protected ones
-#   required_checks    status checks required on the protected branches
+#   required_checks    names of the CI jobs that must pass on the protected branches.
+#                      Only results reported by GitHub Actions count (see [actors]).
+#                      List jobs that run on every pull request and whose name is stable:
+#                      a matrix job such as "pytest (3.11)" changes name with the matrix.
+#   code_owners        false: do not require the approval of a code owner (default: true).
+#                      Without a CODEOWNERS file the rule requires nothing.
 #   merge_methods      allowed merge methods (default: merge, squash, rebase)
-#
-# Bypass actors are in the templates: Renovate (Integration 2740) on `fork-only`,
-# team dirac-release-manager (Team 52350) on `tags`.
 
 org = "DIRACGrid"
 
+# The accounts the templates refer to by name. GitHub wants their numeric id.
+[actors]
+# The Renovate GitHub App: bypasses `fork-only` to push its renovate/* branches.
+renovate = { actor_type = "Integration", actor_id = 2740 }
+# The team that publishes releases: bypasses `tags`.
+dirac-release-manager = { actor_type = "Team", actor_id = 52350 }
+# The GitHub Actions app. Required checks are pinned to it, so a status with the
+# same name posted by anything else (a token, another app) does not count.
+github-actions = { actor_type = "Integration", actor_id = 15368 }
+
 [repos.".github"]
+required_checks = ["pre-commit"]
 tags = false
 
 [repos.container-images]
 tags = false
-required_checks = [
-  { context = "build (secret-generation)", integration_id = 15368 },
-  { context = "build_chain", integration_id = 15368 },
-]
+required_checks = ["build (secret-generation)"]
 
 [repos.DB12]
+required_checks = ["pre-commit"]
 
 [repos.DIRAC]
+required_checks = ["pre-commit", "shellcheck", "pycodestyle"]
+# CODEOWNERS names two people for `*`: requiring them would block every other reviewer.
+code_owners = false
 protected = ["integration", "rel-v*r*"]
 # To be replaced: Renovate already bypasses `fork-only`, so this only opens renovate/* to everyone with write access.
 fork_only_exclude = ["renovate/*"]
@@ -32,6 +47,7 @@ fork_only_exclude = ["renovate/*"]
 branches_all = true
 
 [repos.diraccfg]
+required_checks = ["pre-commit"]
 
 [repos."diracgrid.org"]
 tags = false
@@ -43,24 +59,28 @@ tags = false
 [repos.DIRACWebAppResources]
 
 [repos.diracx]
-# To be replaced by a bypass actor: anyone with write access can create a branch with this prefix.
+# release-please pushes this branch with the workflow token, which cannot be a bypass actor.
+# No required_checks: its pull request is opened by that token and gets no CI run.
 fork_only_exclude = ["release-please--**"]
 
 [repos.diracx-charts]
+required_checks = ["pre-commit"]
 
 [repos.diracx-web]
-# To be replaced by a bypass actor, as in diracx.
+# release-please branch and no required_checks: see diracx.
 fork_only_exclude = ["release-please--**"]
 
 [repos.intercede]
-# To be replaced by a bypass actor, as in diracx.
+# release-please branch and no required_checks: see diracx.
 fork_only_exclude = ["release-please--**"]
 merge_methods = ["squash"]
 
 [repos.management]
+required_checks = ["certificates-generation"]
 tags = false
 
 [repos.mkdocs-diracx-plugin]
+required_checks = ["pre-commit"]
 tags = false
 
 [repos.Pilot]
@@ -68,7 +88,7 @@ protected = ["master", "devel"]
 tags = false
 
 [repos.signurlarity]
-# To be replaced by a bypass actor, as in diracx.
+# release-please branch and no required_checks: see diracx.
 fork_only_exclude = ["release-please--**"]
 merge_methods = ["squash"]
 
@@ -77,4 +97,5 @@ merge_methods = ["squash"]
 [repos.tornado_m2crypto]
 
 [repos.WebAppDIRAC]
+required_checks = ["pre-commit", "pyLint"]
 protected = ["integration", "rel-v*r*"]

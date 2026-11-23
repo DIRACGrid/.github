@@ -11,6 +11,6 @@
     {"type": "required_signatures"}
   ],
   "bypass_actors": [
-    {"actor_id": 52350, "actor_type": "Team", "bypass_mode": "always"}
+    "dirac-release-manager"
   ]
 }

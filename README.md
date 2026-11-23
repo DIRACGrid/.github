@@ -29,18 +29,21 @@ CI validates the preset on every change: a broken preset would break Renovate fo
 
 ## Repository rulesets
 
-Every repository gets the same three rulesets, defined in `rulesets/`:
+Every repository gets the same rulesets, defined in `rulesets/`:
 
 - `branches`: the protected branches only change through a reviewed pull request with signed commits.
 - `fork-only`: nobody creates or pushes other branches in the repository, so pull requests come from forks. Renovate is the exception.
 - `tags` or `no tags`: only release managers create tags, or nobody does.
+- `required-checks` (where `repos.toml` lists checks): the named CI jobs must pass before a merge. Only results reported by GitHub Actions count, so a status with the same name posted by a token or another app is ignored.
 
-What differs per repository (protected branches, whether it has releases, required checks) is in `rulesets/repos.toml`.
+The `branches` ruleset also asks for the approval of a code owner. This only has an effect in repositories with a `CODEOWNERS` file; a one-line file such as `/.github/ @DIRACGrid/dirac-release-manager` makes every workflow change go through a release manager.
+
+What differs per repository (protected branches, whether it has releases, required checks) is in `rulesets/repos.toml`. The same file names the accounts the templates refer to (`[actors]`: Renovate, the release managers' team, GitHub Actions).
 
 ```bash
 scripts/rulesets.py                              # show what differs on GitHub, for every repository
 scripts/rulesets.py diff --repo diracx
-scripts/rulesets.py apply --repo diracx --yes    # create or update the three rulesets
+scripts/rulesets.py apply --repo diracx --yes    # create or update the rulesets
 ```
 
 `diff` only reads and exits with 1 when something differs. `apply` needs admin rights on the repository; add `--prune` to also delete rulesets that are not in the template. Both need the `gh` CLI. The `fork-only` ruleset can only be applied where the Renovate app is installed.

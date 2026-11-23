@@ -2,7 +2,18 @@
 
 import unittest
 
-from rulesets import compare, normalize, render
+from rulesets import compare, normalize
+from rulesets import render as _render
+
+ACTORS = {
+    "renovate": {"actor_type": "Integration", "actor_id": 2740},
+    "dirac-release-manager": {"actor_type": "Team", "actor_id": 52350},
+    "github-actions": {"actor_type": "Integration", "actor_id": 15368},
+}
+
+
+def render(params, default_branch):
+    return _render(params, default_branch, ACTORS)
 
 
 def norm(ruleset):
@@ -35,6 +46,40 @@ class RulesetsTest(unittest.TestCase):
             wanted["fork-only"]["conditions"]["ref_name"]["exclude"],
             ["refs/heads/integration", "refs/heads/rel-v*r*", "refs/heads/renovate/*"],
         )
+
+    def test_actors_are_resolved(self):
+        wanted = render({}, "main")
+        self.assertEqual(
+            wanted["fork-only"]["bypass_actors"],
+            [{"actor_type": "Integration", "actor_id": 2740, "bypass_mode": "always"}],
+        )
+        self.assertEqual(wanted["tags"]["bypass_actors"][0]["actor_id"], 52350)
+
+    def test_required_checks_are_pinned_to_github_actions(self):
+        wanted = render(
+            {
+                "protected": ["integration", "rel-v*r*"],
+                "branches_all": True,
+                "required_checks": ["pre-commit"],
+                "code_owners": False,
+            },
+            "integration",
+        )
+        required = wanted["required-checks"]
+        # Never on every branch, whatever `branches_all` says.
+        self.assertEqual(
+            required["conditions"]["ref_name"]["include"],
+            ["refs/heads/integration", "refs/heads/rel-v*r*"],
+        )
+        self.assertEqual(
+            required["rules"][0]["parameters"]["required_status_checks"],
+            [{"context": "pre-commit", "integration_id": 15368}],
+        )
+        pull_request = next(
+            r for r in wanted["branches"]["rules"] if r["type"] == "pull_request"
+        )
+        self.assertFalse(pull_request["parameters"]["require_code_owner_review"])
+        self.assertNotIn("required-checks", render({}, "main"))
 
     def test_equivalent_live_ruleset_is_not_drift(self):
         wanted = render({}, "main")["branches"]
