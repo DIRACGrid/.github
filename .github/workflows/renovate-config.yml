@@ -26,7 +26,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24
+          node-version: 26
       # Every DIRACGrid repo extends this file: a broken preset breaks Renovate everywhere at once.
       # Copied to renovate.json so it is checked as repository config, which is how repos consume it
       # (given an arbitrary file name, the validator checks it as global config instead).
