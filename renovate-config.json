@@ -86,6 +86,12 @@
       "matchManagers": ["pep621"],
       "matchCurrentValue": "/</",
       "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Do not bump the python of pixi environments: each one is a deliberate choice (e.g. py36 for the pilot wrapper).",
+      "matchManagers": ["pixi"],
+      "matchDepNames": ["python"],
+      "enabled": false
     }
   ]
 }
