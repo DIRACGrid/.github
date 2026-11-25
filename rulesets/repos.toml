@@ -9,6 +9,8 @@
 #                      Only results reported by GitHub Actions count (see [actors]).
 #                      List jobs that run on every pull request and whose name is stable:
 #                      a matrix job such as "pytest (3.11)" changes name with the matrix.
+#                      Where a repository has a `ci-ok` job (it needs all the test jobs),
+#                      require that one name.
 #   code_owners        false: do not require the approval of a code owner (default: true).
 #                      Without a CODEOWNERS file the rule requires nothing.
 #   merge_methods      allowed merge methods (default: merge, squash, rebase)
@@ -37,7 +39,8 @@ required_checks = ["build (secret-generation)"]
 required_checks = ["pre-commit"]
 
 [repos.DIRAC]
-required_checks = ["pre-commit", "shellcheck", "pycodestyle"]
+# basic-ok needs the lint and unit-test jobs of `Basic tests`.
+required_checks = ["basic-ok"]
 # CODEOWNERS names two people for `*`: requiring them would block every other reviewer.
 code_owners = false
 protected = ["integration", "rel-v*r*"]
@@ -49,6 +52,7 @@ required_checks = ["pre-commit"]
 tags = false
 
 [repos.DIRACOS2]
+required_checks = ["ci-ok"]
 
 [repos.dirac-webapp-packaging]
 
@@ -61,7 +65,7 @@ tags = false
 fork_only_exclude = ["release-please--**", "chore/update-security-txt-expiry"]
 
 [repos.diracx-charts]
-required_checks = ["pre-commit"]
+required_checks = ["ci-ok"]
 
 [repos.diracx-web]
 # release-please branch and no required_checks: see diracx.
@@ -86,6 +90,7 @@ tags = false
 # `no more tags` rulesets. oldMaster stays frozen through `fork-only`.
 protected = ["master", "devel"]
 tags = false
+required_checks = ["ci-ok"]
 
 [repos.signurlarity]
 # release-please branch and no required_checks: see diracx.
