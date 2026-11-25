@@ -58,18 +58,18 @@ tags = false
 # release-please pushes this branch with the workflow token, which cannot be a bypass actor.
 # No required_checks: its pull request is opened by that token and gets no CI run.
 # update_security_txt_expiry.yml pushes its branch with the same token.
-fork_only_exclude = ["release-please--**", "chore/update-security-txt-expiry"]
+fork_only_exclude = ["release-please--branches--main", "chore/update-security-txt-expiry"]
 
 [repos.diracx-charts]
 required_checks = ["pre-commit"]
 
 [repos.diracx-web]
 # release-please branch and no required_checks: see diracx.
-fork_only_exclude = ["release-please--**"]
+fork_only_exclude = ["release-please--branches--main"]
 
 [repos.intercede]
 # release-please branch and no required_checks: see diracx.
-fork_only_exclude = ["release-please--**"]
+fork_only_exclude = ["release-please--branches--main"]
 merge_methods = ["squash"]
 
 [repos.management]
@@ -89,7 +89,7 @@ tags = false
 
 [repos.signurlarity]
 # release-please branch and no required_checks: see diracx.
-fork_only_exclude = ["release-please--**"]
+fork_only_exclude = ["release-please--branches--master"]
 merge_methods = ["squash"]
 
 [repos.tornado]
