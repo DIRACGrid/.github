@@ -35,6 +35,6 @@ jobs:
           mkdir "$RUNNER_TEMP/preset"
           cp renovate-config.json "$RUNNER_TEMP/preset/renovate.json"
           cd "$RUNNER_TEMP/preset"
-          npx --yes --package renovate@44.256.0 -- renovate-config-validator --strict
+          npx --yes --package renovate@44.256.1 -- renovate-config-validator --strict
       - name: Validate renovate.json
-        run: npx --yes --package renovate@44.256.0 -- renovate-config-validator --strict
+        run: npx --yes --package renovate@44.256.1 -- renovate-config-validator --strict
